@@ -57,7 +57,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3123a1645a64501a1bbef8197ad5c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifetime: 100
+  lifetime: 3
 --- !u!212 &21204746
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -101,7 +101,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: lifetime
-      value: 100
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

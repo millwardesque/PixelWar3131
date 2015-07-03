@@ -71,7 +71,7 @@ public class UnitController : MonoBehaviour {
 				foreach (MoveableUnit unit in selectedUnits) {
 
 					if (IsShootable (unit.gameObject, collider.gameObject)) {
-						unit.GetComponent<UnitWeapon>().Fire(colliderPosition);
+						unit.Target = collider.gameObject;
 					}
 					else {
 						Vector2 randomOffset = new Vector2(Random.Range(-clusterOffsetRadius, clusterOffsetRadius), Random.Range(-clusterOffsetRadius, clusterOffsetRadius));
@@ -225,7 +225,9 @@ public class UnitController : MonoBehaviour {
 
 	public void ClearSelectedUnits() {
 		foreach (MoveableUnit unit in selectedUnits) {
-			unit.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f);
+			if (unit != null) {
+				unit.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f);
+			}
 		}
 
 		selectedUnits.Clear();

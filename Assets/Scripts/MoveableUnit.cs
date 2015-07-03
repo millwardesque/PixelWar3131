@@ -3,7 +3,8 @@ using System.Collections;
 
 public enum MovementState {
 	Standing,
-	Walking
+	Walking,
+	Tracking
 };
 
 [RequireComponent (typeof(Rigidbody2D))]
@@ -12,7 +13,21 @@ public class MoveableUnit : MonoBehaviour {
 	public float speed = 1f; // Speed in game units / second
 	public Vector2 destination;
 	public float attackRadius = 1f;
-	public MoveableUnit target;
+
+	private GameObject target;
+	public GameObject Target {
+		get { return target; }
+		set {
+			target = value;
+
+			if (target != null) {
+				State = MovementState.Tracking;
+			}
+			else if (State == MovementState.Tracking) {
+				State = MovementState.Standing;
+			}
+		}
+	}
 
 	MovementState state = MovementState.Standing;
 	public MovementState State {
@@ -23,6 +38,9 @@ public class MoveableUnit : MonoBehaviour {
 			}
 			else if (value == MovementState.Standing) {
 				onUpdateFunction = OnStandingUpdate;
+			}
+			else if (value == MovementState.Tracking) {
+				onUpdateFunction = OnTrackingUpdate;
 			}
 			state = value;
 		}
@@ -41,7 +59,7 @@ public class MoveableUnit : MonoBehaviour {
 	void Start() {
 		State = MovementState.Standing;
 	}
-	
+
 	// Update is called once per frame
 	void FixedUpdate () {
 		if (onUpdateFunction != null) {
@@ -49,9 +67,9 @@ public class MoveableUnit : MonoBehaviour {
 		}
 	}
 
-	MoveableUnit FindNextTarget() {
+	GameObject FindNextTarget() {
 		MoveableUnit[] units = GameObject.FindObjectsOfType<MoveableUnit>();
-		MoveableUnit closest = null;
+		GameObject closest = null;
 		float closestDistance = attackRadius;
 		foreach (MoveableUnit unit in units) {
 			if (unit == this || myTeam.IsOnMyTeam(unit.GetComponent<Team>())) {
@@ -60,7 +78,7 @@ public class MoveableUnit : MonoBehaviour {
 
 			float distance = (transform.position - unit.transform.position).magnitude;
 			if (distance < closestDistance) {
-				closest = unit;
+				closest = unit.gameObject;
 				closestDistance = distance;
 			}
 		}
@@ -75,7 +93,7 @@ public class MoveableUnit : MonoBehaviour {
 
 	void OnStandingUpdate() {
 		if (target == null) {
-			target = FindNextTarget();
+			Target = FindNextTarget();
 		}
 		else {
 			GetComponent<UnitWeapon>().Fire(target.transform.position);
@@ -87,9 +105,26 @@ public class MoveableUnit : MonoBehaviour {
 		Vector2 newPosition = toDestination.normalized * speed * Time.deltaTime;
 		if (toDestination.magnitude < newPosition.magnitude) {
 			this.rb.MovePosition((Vector2)this.transform.position + toDestination);
+
 			State = MovementState.Standing;
 		}
 		else {
+			this.rb.MovePosition((Vector2)this.transform.position + newPosition);
+		}
+	}
+
+	void OnTrackingUpdate() {
+		if (target == null) { // In case the target gets destroyed elsewhere, clean up my own state.
+			Target = null;
+			return;
+		}
+		Vector2 targetPosition = target.transform.position;
+		if ((targetPosition - (Vector2)transform.position).magnitude < attackRadius) {
+			GetComponent<UnitWeapon>().Fire(targetPosition);
+		}
+		else {
+			Vector2 toDestination = targetPosition - (Vector2)transform.position;
+			Vector2 newPosition = toDestination.normalized * speed * Time.deltaTime;
 			this.rb.MovePosition((Vector2)this.transform.position + newPosition);
 		}
 	}
