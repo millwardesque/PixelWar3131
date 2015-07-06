@@ -32,10 +32,10 @@ public class Health : MonoBehaviour {
 		if (bloodPrefab != null) {
 			GameObject blood = Instantiate<GameObject>(bloodPrefab);
 			blood.transform.position = transform.position;
+			blood.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Random.Range(0f, 360f)));
 			Vector2 direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
 			blood.GetComponent<Rigidbody2D>().AddForce(direction * 0.3f, ForceMode2D.Impulse);
 		}
-		Debug.Log (string.Format ("{0}'s HP changed from {1} to {2}.", this.name, currentHealth - change, currentHealth));
 	}
 
 	protected virtual void OnDeath() {

@@ -35,13 +35,15 @@ public class Bullet : MonoBehaviour {
 		GameObject.Destroy(gameObject);
 	}
 
-	void OnCollisionEnter2D(Collision2D col) {
-		if (col.collider.GetComponent<Bullet>() != null) {
+	void OnTriggerEnter2D(Collider2D collider) {
+		if (collider.GetComponent<Bullet>() != null || myTeam.IsOnMyTeam(collider.GetComponent<Team>())) {
 			return;
 		}
 
-		if (col.collider.GetComponent<Health>()) {
-			col.collider.GetComponent<Health>().AdjustHealth(-damage);
+		if (collider.GetComponent<Health>()) {
+			collider.GetComponent<Health>().AdjustHealth(-damage);
+
+			Debug.Log(string.Format("Bullet from team {0} hit {1}", myTeam.teamNumber, collider.name));
 		}
 
 		DestroyMe();

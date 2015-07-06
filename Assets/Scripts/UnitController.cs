@@ -213,7 +213,7 @@ public class UnitController : MonoBehaviour {
 	}
 
 	public void AddUnitToSelection(MoveableUnit unit) {
-		if (selectedUnits.Contains(unit)) {
+		if (unit == null || selectedUnits.Contains(unit)) {
 			return;
 		}
 
